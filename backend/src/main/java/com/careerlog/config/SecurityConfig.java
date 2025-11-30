@@ -22,8 +22,11 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${AZURE_AD_ISSUER_URI:https://login.microsoftonline.com/common/v2.0}")
-    private String issuerUri;
+    @Value("${AZURE_AD_TENANT_ID:f6455f6e-2d5a-4bbc-9970-244a8ddcd72e}")
+    private String tenantId;
+
+    @Value("${AZURE_AD_ISSUER_URI:}")
+    private String issuerOverride;
 
     @Value("${FRONTEND_URL:http://localhost:5173}")
     private String frontendUrl;
@@ -51,8 +54,15 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withJwkSetUri(issuerUri + "/.well-known/openid-configuration")
-                .build();
+        // Using the tenant-specific issuer avoids the {tenantid} vs common mismatch from Azure metadata
+        return NimbusJwtDecoder.withIssuerLocation(resolveIssuer()).build();
+    }
+
+    private String resolveIssuer() {
+        if (issuerOverride != null && !issuerOverride.isBlank()) {
+            return issuerOverride;
+        }
+        return "https://login.microsoftonline.com/" + tenantId + "/v2.0";
     }
 
     @Bean
