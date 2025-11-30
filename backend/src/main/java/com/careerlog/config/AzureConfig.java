@@ -38,22 +38,22 @@ public class AzureConfig {
         return new DefaultAzureCredentialBuilder().build();
     }
 
-    @Bean
-    public SecretClient secretClient(TokenCredential tokenCredential) {
-        // Only create this bean if a Key Vault URI was provided
-        if (keyVaultUri == null || keyVaultUri.isBlank()) {
-            // You can either:
-            // 1) return null (not ideal), or
-            // 2) throw a clear exception, or
-            // 3) skip defining this bean.
-            //
-            // Easiest: don't use this bean anywhere yet, or guard its usage.
-            throw new IllegalStateException("AZURE_KEYVAULT_URI is not configured but SecretClient was requested.");
-        }
-
-        return new SecretClientBuilder()
-                .vaultUrl(keyVaultUri)
-                .credential(tokenCredential)
-                .buildClient();
-    }
+//    @Bean
+//    public SecretClient secretClient(TokenCredential tokenCredential) {
+//        // Only create this bean if a Key Vault URI was provided
+//        if (keyVaultUri == null || keyVaultUri.isBlank()) {
+//            // You can either:
+//            // 1) return null (not ideal), or
+//            // 2) throw a clear exception, or
+//            // 3) skip defining this bean.
+//            //
+//            // Easiest: don't use this bean anywhere yet, or guard its usage.
+//            throw new IllegalStateException("AZURE_KEYVAULT_URI is not configured but SecretClient was requested.");
+//        }
+//
+//        return new SecretClientBuilder()
+//                .vaultUrl(keyVaultUri)
+//                .credential(tokenCredential)
+//                .buildClient();
+//    }
 }
