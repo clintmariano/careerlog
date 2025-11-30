@@ -21,7 +21,7 @@ public class AzureConfig {
     @Value("${AZURE_STORAGE_ACCOUNT_KEY}")
     private String storageAccountKey;
 
-    @Value("${AZURE_KEYVAULT_URI}")
+    @Value("${AZURE_KEYVAULT_URI:}")
     private String keyVaultUri;
 
     @Bean
