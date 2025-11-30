@@ -6,6 +6,8 @@ server:
 spring:
   application:
     name: careerlog-backend
+
+  # Default profile for local dev
   profiles:
     active: local
 
@@ -18,10 +20,12 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
+  # LOCAL datasource (you can point this to local postgres or Azure postgres, your choice)
   datasource:
-    url: jdbc:postgresql://localhost:5432/careerlog
-    username: ${DB_USERNAME:careerlog}
-    password: ${DB_PASSWORD:careerlog123}
+    # for local dev you can change this to localhost later if you want
+    url: jdbc:postgresql://careerlog-db.postgres.database.azure.com:5432/careerlog?sslmode=require
+    username: ${DB_USERNAME:careerlogadmin@careerlog-db}
+    password: ${DB_PASSWORD:changeme}   # DO NOT commit real password here
     driver-class-name: org.postgresql.Driver
 
 management:
@@ -39,6 +43,7 @@ logging:
     org.springframework.security: DEBUG
 
 ---
+# Azure profile – used when SPRING_PROFILES_ACTIVE=azure
 spring:
   config:
     activate:
@@ -48,7 +53,7 @@ spring:
     url: ${AZURE_DATABASE_URL}
     username: ${AZURE_DATABASE_USERNAME}
     password: ${AZURE_DATABASE_PASSWORD}
-    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
@@ -56,7 +61,7 @@ spring:
     show-sql: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.SQLServerDialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   azure:
     storage:
