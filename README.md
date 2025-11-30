@@ -1,24 +1,24 @@
 # CareerLog
 
-A comprehensive Job Search Journal application built with Spring Boot + React, showcasing modern Azure cloud services and best practices.
+A comprehensive Job Search Journal built with Spring Boot and React, showcasing modern Azure cloud services and production-ready patterns.
 
 ![CareerLog Architecture](infra/architecture-diagram.png)
 
-## 🌟 Overview
+## Overview
 
-CareerLog helps job seekers track their job applications, interviews, and career progress in one secure, cloud-deployed platform. It demonstrates production-ready architecture using Microsoft Azure services.
+CareerLog helps job seekers track applications, interviews, and career progress in one secure, cloud-deployed platform. It demonstrates a full-stack architecture using Microsoft Azure services.
 
 ### Key Features
 
-- **🔐 Azure AD Authentication** - Secure login with Microsoft Entra ID
-- **📊 Analytics Dashboard** - Track application status, weekly trends, and activity breakdowns
-- **💼 Application Management** - Complete CRUD for job applications with status tracking
-- **📝 Activity Timeline** - Log interviews, follow-ups, and recruitment activities
-- **📎 File Attachments** - Upload resumes, cover letters, and portfolio files to Azure Blob Storage
-- **🔒 Enterprise Security** - Azure Key Vault for secrets, Application Gateway with WAF
-- **📈 Monitoring** - Application Insights for performance tracking and error monitoring
+- **Azure AD Authentication** – Secure login with Microsoft Entra ID
+- **Analytics Dashboard** – Status breakdowns, weekly trends, and activity summaries
+- **Application Management** – Full CRUD with status tracking
+- **Activity Timeline** – Log interviews, follow-ups, and recruiting events
+- **File Attachments** – Upload resumes, cover letters, and portfolios to Azure Blob Storage
+- **Enterprise Security** – Azure Key Vault for secrets, Application Gateway with WAF
+- **Monitoring** – Application Insights for performance tracking and error monitoring
 
-## 🏗️ Architecture
+## Architecture
 
 ```mermaid
 graph TB
@@ -50,157 +50,136 @@ graph TB
     GH --> APP
 ```
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Backend (Spring Boot 3.x)
-- **Java 17+** - Modern Java development
-- **Spring Web** - RESTful APIs
-- **Spring Data JPA** - Database ORM
-- **Spring Security + OAuth2** - Azure AD integration
-- **Azure SDK** - Storage, Key Vault integration
-- **Application Insights** - Telemetry and monitoring
-- **Maven** - Build and dependency management
+- Java 17+
+- Spring Web, Spring Data JPA
+- Spring Security + OAuth2 (Azure AD)
+- Azure SDK (Storage, Key Vault)
+- Application Insights
+- Maven
 
 ### Frontend (React + Vite)
-- **React 18** with TypeScript
-- **MSAL React** - Azure AD authentication
-- **React Router** - Client-side routing
-- **Axios** - HTTP client with JWT handling
-- **Recharts** - Data visualization
-- **Tailwind CSS** - Utility-first styling
-- **Vite** - Fast build tooling
+- React 18 with TypeScript
+- MSAL React (Azure AD)
+- React Router
+- Axios with JWT handling
+- Recharts
+- Tailwind CSS
+- Vite
 
 ### Azure Services
-- **Azure App Service** - Linux hosting for both apps
-- **Azure SQL Database** - Relational data storage
-- **Azure Blob Storage** - File storage for attachments
-- **Azure Key Vault** - Secrets management
-- **Microsoft Entra ID** - Identity and access management
-- **Application Gateway** - Load balancing and WAF
-- **Application Insights** - APM and monitoring
-- **GitHub Actions** - CI/CD deployment pipeline
+- Azure App Service (frontend/backend)
+- Azure SQL Database
+- Azure Blob Storage
+- Azure Key Vault
+- Microsoft Entra ID
+- Application Gateway (with WAF)
+- Application Insights
+- GitHub Actions (CI/CD)
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
+- Java 17+
+- Node.js 18+
+- Maven 3.8+
+- PostgreSQL (for local development)
+- Azure subscription (for deployment)
 
-- **Java 17+**
-- **Node.js 18+**
-- **Maven 3.8+**
-- **PostgreSQL** (for local development)
-- **Azure Subscription** (for deployment)
+### Local Development
 
-### Local Development Setup
+1) **Clone**
+```bash
+git clone https://github.com/your-username/careerlog.git
+cd careerlog
+```
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-username/careerlog.git
-   cd careerlog
-   ```
+2) **Backend**
+```bash
+cd backend
+cp .env.example .env   # fill in DB and Azure values
+mvn clean install
+mvn spring-boot:run
+```
 
-2. **Backend Setup**
-   ```bash
-   cd backend
-   cp .env.example .env
-   # Edit .env with your local database credentials
-   mvn clean install
-   mvn spring-boot:run
-   ```
+3) **Frontend**
+```bash
+cd frontend
+cp .env.example .env   # fill in Azure AD app registration + API base URL
+npm install
+npm run dev
+```
 
-3. **Frontend Setup**
-   ```bash
-   cd frontend
-   cp .env.example .env
-   # Edit .env with your Azure AD app registration details
-   npm install
-   npm run dev
-   ```
+4) **Database (PostgreSQL)**
+```sql
+CREATE DATABASE careerlog;
+CREATE USER careerlog_user WITH PASSWORD 'careerlog_pass';
+GRANT ALL PRIVILEGES ON DATABASE careerlog TO careerlog_user;
+```
 
-4. **Database Setup (PostgreSQL)**
-   ```sql
-   CREATE DATABASE careerlog;
-   CREATE USER careerlog_user WITH PASSWORD 'careerlog_pass';
-   GRANT ALL PRIVILEGES ON DATABASE careerlog TO careerlog_user;
-   ```
+5) **Azure AD App Registration**
+- Register two apps: **Backend API** and **Frontend SPA**
+- Backend identifier URI: `api://careerlog-backend` (or your choice)
+- Frontend redirect URI: `http://localhost:5173`
+- Grant `User.Read` (Graph) and `access_as_user` (your API)
 
-5. **Azure AD App Registration**
-   - Register two applications in Azure AD
-   - **Backend API**: Configure as Web API with `api://careerlog-backend` identifier URI
-   - **Frontend SPA**: Configure as Single-page app with redirect URL `http://localhost:5173`
-   - Set proper API permissions: `User.Read` (Microsoft Graph) and `access_as_user` (your API)
+## Azure Deployment
 
-## ☁️ Azure Deployment
+### Automated (recommended)
+1. Fork this repository.
+2. Configure GitHub secrets:
+   - `AZURE_WEBAPP_PUBLISH_PROFILE`
+   - `API_BASE_URL`
+   - `AZURE_CLIENT_ID`
+   - `AZURE_AUTHORITY`
+   - `AZURE_REDIRECT_URI`
+3. Push to `main`; GitHub Actions will deploy.
 
-### Automated Deployment (Recommended)
+### Manual
+1. Provision Azure resources (see `infra/azure-setup-notes.md`).
+2. Backend:
+```bash
+cd backend
+mvn clean package -DskipTests
+az webapp deploy --resource-group rg-careerlog-dev --name careerlog-backend-app --target-path / --src target/*.jar
+```
+3. Frontend:
+```bash
+cd frontend
+npm run build
+az webapp deploy --resource-group rg-careerlog-dev --name careerlog-frontend-app --src dist/
+```
 
-1. **Fork this repository** to your GitHub account
-2. **Configure GitHub Secrets**:
-   - `AZURE_WEBAPP_PUBLISH_PROFILE` - Azure App Service publish profiles
-   - `API_BASE_URL` - Production API endpoint
-   - `AZURE_CLIENT_ID` - Frontend Azure AD client ID
-   - `AZURE_AUTHORITY` - Azure AD authority URL
-   - `AZURE_REDIRECT_URI` - Production frontend URL
-
-3. **Push to main branch** - GitHub Actions will automatically deploy
-
-### Manual Deployment
-
-1. **Provision Azure Resources** (see `infra/azure-setup-notes.md`)
-2. **Build and Deploy Backend**:
-   ```bash
-   cd backend
-   mvn clean package -DskipTests
-   az webapp deploy --resource-group rg-careerlog-dev --name careerlog-backend-app --target-path / --src target/*.jar
-   ```
-
-3. **Build and Deploy Frontend**:
-   ```bash
-   cd frontend
-   npm run build
-   az webapp deploy --resource-group rg-careerlog-dev --name careerlog-frontend-app --src dist/
-   ```
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 careerlog/
-├── backend/                    # Spring Boot REST API
-│   ├── src/main/java/com/careerlog/
-│   │   ├── controller/         # REST endpoints
-│   │   ├── service/           # Business logic
-│   │   ├── repository/        # JPA repositories
-│   │   ├── model/            # JPA entities
-│   │   ├── config/           # Security and Azure config
-│   │   └── exception/        # Exception handling
-│   └── src/main/resources/
-│       └── application.yml    # Configuration profiles
-├── frontend/                  # React SPA
-│   ├── src/
-│   │   ├── components/        # Reusable UI components
-│   │   ├── pages/           # Page components
-│   │   ├── auth/            # Azure AD authentication
-│   │   ├── api/             # API services and types
-│   │   └── hooks/           # Custom React hooks
-│   └── dist/                # Build output
-├── infra/                    # Infrastructure as code
-│   ├── architecture-diagram.mmd
-│   └── azure-setup-notes.md
-├── docs/                     # Additional documentation
-└── .github/workflows/         # CI/CD pipelines
+├─ backend/                 # Spring Boot REST API
+│  └─ src/main/java/com/careerlog/
+│     ├─ controller/        # REST endpoints
+│     ├─ service/           # Business logic
+│     ├─ repository/        # JPA repositories
+│     ├─ model/             # JPA entities
+│     ├─ config/            # Security and Azure config
+│     └─ exception/         # Exception handling
+│  └─ src/main/resources/   # application.yml and assets
+├─ frontend/                # React SPA
+│  └─ src/
+│     ├─ components/        # Reusable UI
+│     ├─ pages/             # Page components
+│     ├─ auth/              # Azure AD auth
+│     ├─ api/               # API services and types
+│     └─ hooks/             # Custom React hooks
+├─ infra/                   # Infrastructure as code and diagrams
+└─ docs/                    # Additional documentation
 ```
 
-## 🔧 Configuration
+## Configuration
 
-### Backend Profiles
-
-- **local**: PostgreSQL database, local file system
-- **azure**: Azure SQL, Managed Identity, Key Vault integration
-
-### Environment Variables
-
-#### Backend (.env.example)
-```bash
-# Database
+### Backend (.env.example)
+```
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=careerlog
@@ -217,8 +196,8 @@ AZURE_AD_CLIENT_ID=...
 AZURE_AD_ISSUER_URI=...
 ```
 
-#### Frontend (.env.example)
-```bash
+### Frontend (.env.example)
+```
 # Azure AD
 VITE_AZURE_CLIENT_ID=your-frontend-client-id
 VITE_AZURE_AUTHORITY=https://login.microsoftonline.com/your-tenant-id
@@ -228,154 +207,90 @@ VITE_AZURE_REDIRECT_URI=http://localhost:5173
 VITE_API_BASE_URL=http://localhost:8080/api
 ```
 
-## 🧪 Testing
+## Testing
 
-### Backend Tests
+### Backend
 ```bash
 cd backend
 mvn test
 ```
 
-### Frontend Tests
+### Frontend
 ```bash
 cd frontend
-npm run test
+npm run build   # ensures type-safety and bundle
 ```
 
-### End-to-End Tests
+### End-to-End
 ```bash
-# Start both services
-npm run test:e2e
+# Start backend and frontend locally, then run your e2e suite
 ```
 
-## 📊 Monitoring and Analytics
+## Monitoring and Analytics
+- Application Insights for performance, usage analytics, error tracking, and live metrics.
+- Custom metrics: application CRUD events, status changes, uploads/downloads, auth patterns, endpoint performance.
 
-### Application Insights
-- **Performance Monitoring**: Response times, error rates, dependency tracking
-- **Usage Analytics**: Feature usage, user sessions, custom events
-- **Error Tracking**: Exception telemetry, crash reports
-- **Live Metrics**: Real-time performance monitoring
+## Security Features
+- OAuth 2.0 + JWT
+- CORS controls
+- CSRF protection
+- Rate limiting
+- Input validation
+- Secrets in Key Vault
+- WAF protection
+- Secure headers (HSTS, CSP, etc.)
 
-### Custom Metrics Tracked
-- Application creation/update/deletion events
-- Status changes and workflow progression
-- File upload and download operations
-- User authentication patterns
-- API endpoint performance
+## Cost Optimization
+- Use App Service B1/Basic for dev
+- Basic tier Azure SQL for small workloads
+- LRS storage with lifecycle policies
+- Reserved instances for prod
+- CDN for frontend assets when scaling
 
-## 🔒 Security Features
+## Contributing
+1. Fork the repo.
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit: `git commit -m "Add amazing feature"`
+4. Push: `git push origin feature/amazing-feature`
+5. Open a Pull Request.
 
-- **OAuth 2.0 + JWT** - Standard token-based authentication
-- **CORS Protection** - Configurable cross-origin policies
-- **CSRF Protection** - Form submission security
-- **Rate Limiting** - API abuse prevention
-- **Input Validation** - Data integrity and XSS prevention
-- **Secret Management** - Azure Key Vault integration
-- **WAF Protection** - OWASP Top 10 protection at edge
-- **Secure Headers** - HSTS, CSP, and other security headers
+Guidelines: Spring Boot best practices with tests; React + TypeScript with hooks; migrations for DB changes; keep secrets out of code; update docs when behavior changes.
 
-## 💰 Cost Optimization
+## API (quick reference)
 
-### Azure Free Tier Usage
-- **App Service**: B1 tier (~$13/month) - Basic hosting
-- **Azure SQL**: Basic tier (~$5/month) - 2GB storage
-- **Storage Account**: LRS (~$0.02/GB/month) - Attachment storage
-- **Key Vault**: Free tier - 25,000 transactions/month
-- **Application Insights**: Free tier - 5GB data/month
+Authentication: `Authorization: Bearer <jwt>`
 
-### Cost-Saving Strategies
-1. **Auto-scaling**: Scale based on demand
-2. **Reserved Instances**: 1-3 year commitments for production
-3. **Storage Tiers**: Lifecycle policies for old attachments
-4. **Database Optimization**: Query optimization and indexing
-5. **CDN Integration**: Frontend asset delivery
+### Applications
+- `GET /api/applications`
+- `POST /api/applications`
+- `GET /api/applications/{id}`
+- `PUT /api/applications/{id}`
+- `DELETE /api/applications/{id}`
 
-## 🤝 Contributing
+### Activities
+- `GET /api/activities/application/{id}`
+- `POST /api/activities`
+- `GET /api/activities/user`
 
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Commit changes**: `git commit -m 'Add amazing feature'`
-4. **Push to branch**: `git push origin feature/amazing-feature`
-5. **Open a Pull Request**
+### Dashboard
+- `GET /api/dashboard/overview`
+- `GET /api/dashboard/applications-per-week`
 
-### Development Guidelines
+For full docs, see Swagger at `http://localhost:8080/swagger-ui.html`.
 
-- **Backend**: Follow Spring Boot best practices, write unit tests
-- **Frontend**: Use TypeScript, follow React hooks patterns
-- **Database**: Use migrations for schema changes
-- **Security**: Never commit secrets, use environment variables
-- **Documentation**: Update README and inline documentation
+## Troubleshooting
 
-## 📝 API Documentation
+1. **Azure AD login**: verify redirect URIs, client/tenant IDs, API permissions.
+2. **Database connection**: check firewall rules, connection strings, and credentials.
+3. **CORS**: align frontend `VITE_API_BASE_URL` with backend allowed origins.
+4. **Deployment**: ensure publish profiles and environment variables are set; check App Service logs.
 
-### Authentication
-All API endpoints require a valid Azure AD JWT token in the `Authorization` header:
-```
-Authorization: Bearer <your-jwt-token>
-```
+Support: open GitHub issues, consult `docs/`, and monitor Azure Portal for resource health.
 
-### Key Endpoints
+## License
 
-#### Applications
-- `GET /api/applications` - List user applications (paginated)
-- `POST /api/applications` - Create new application
-- `GET /api/applications/{id}` - Get application details
-- `PUT /api/applications/{id}` - Update application
-- `DELETE /api/applications/{id}` - Delete application
-
-#### Activities
-- `GET /api/activities/application/{id}` - Get application activities
-- `POST /api/activities` - Log new activity
-- `GET /api/activities/user` - Get user activities
-
-#### Dashboard
-- `GET /api/dashboard/overview` - Dashboard analytics
-- `GET /api/dashboard/applications-per-week` - Weekly trends
-
-For complete API documentation, see the Swagger UI at `http://localhost:8080/swagger-ui.html`
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **Azure AD Login Issues**
-   - Verify app registration redirect URIs
-   - Check client ID and tenant ID
-   - Ensure proper API permissions
-
-2. **Database Connection Issues**
-   - Verify firewall rules allow Azure IP addresses
-   - Check connection string format
-   - Validate user permissions
-
-3. **CORS Issues**
-   - Configure allowed origins in Spring Security
-   - Set proper frontend API base URL
-   - Check preflight OPTIONS handling
-
-4. **Deployment Issues**
-   - Verify publish profiles in GitHub Secrets
-   - Check App Service startup logs
-   - Validate environment variables
-
-### Support
-
-- **GitHub Issues**: Report bugs and feature requests
-- **Documentation**: Check `docs/` for detailed guides
-- **Azure Portal**: Monitor resource health and metrics
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Microsoft Azure** - Cloud infrastructure and services
-- **Spring Framework** - Backend framework
-- **React Team** - Frontend framework
-- **Tailwind CSS** - Utility-first CSS framework
-- **Recharts** - Data visualization library
+MIT License - see [LICENSE](LICENSE).
 
 ---
 
-**Built with ❤️ for job seekers everywhere** 🚀
+Built for job seekers everywhere. Happy tracking!
