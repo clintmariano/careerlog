@@ -1,0 +1,89 @@
+graph TB
+    subgraph "Users"
+        U[Job Seekers]
+        R[Recruiters]
+    end
+
+    subgraph "Azure Front Door / Application Gateway"
+        AGW[Application Gateway with WAF]
+    end
+
+    subgraph "Azure App Services"
+        subgraph "Frontend"
+            FE[CareerLog Frontend<br/>React SPA]
+        end
+
+        subgraph "Backend"
+            BE[CareerLog Backend<br/>Spring Boot API]
+        end
+    end
+
+    subgraph "Identity & Security"
+        AD[Microsoft Entra ID<br/>Azure AD]
+        KV[Azure Key Vault]
+    end
+
+    subgraph "Data & Storage"
+        subgraph "Database"
+            SQL[Azure SQL Database]
+        end
+
+        subgraph "File Storage"
+            SA[Azure Storage Account<br/>Blob Container]
+        end
+    end
+
+    subgraph "Monitoring & Analytics"
+        AI[Application Insights]
+        AM[Azure Monitor]
+        LA[Log Analytics]
+    end
+
+    subgraph "CI/CD Pipeline"
+        GH[GitHub Actions]
+    end
+
+    %% Connections
+    U --> AGW
+    R --> AGW
+    AGW --> FE
+    FE --> AD
+    FE --> BE
+    BE --> AD
+    BE --> KV
+    BE --> SQL
+    BE --> SA
+
+    %% Monitoring connections
+    FE --> AI
+    BE --> AI
+    AI --> AM
+    AI --> LA
+
+    %% CI/CD connections
+    GH --> FE
+    GH --> BE
+
+    %% Authentication flow
+    AD -.->|OAuth2 Tokens| FE
+    AD -.->|JWT Validation| BE
+
+    %% Managed Identity
+    BE -.->|Managed Identity| KV
+    BE -.->|Managed Identity| SA
+
+    classDef user fill:#e1f5fe
+    classDef network fill:#f3e5f5
+    classDef app fill:#e8f5e8
+    classDef security fill:#fff3e0
+    classDef data fill:#fce4ec
+    classDef monitoring fill:#f1f8e9
+    classDef cicd fill:#e0f2f1
+
+    class U,R user
+    class AGW network
+    class FE,BE app
+    class AD,KV security
+    class SQL,SA data
+    class AI,AM,LA monitoring
+    class GH cicd
