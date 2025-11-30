@@ -1,124 +1,32 @@
-name: Backend CI/CD
+name: Deploy Backend
 
 on:
   push:
-    branches: [ main, develop ]
-    paths: [ 'backend/**' ]
-  pull_request:
     branches: [ main ]
-    paths: [ 'backend/**' ]
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}/careerlog-backend
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
 
 jobs:
-  test:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: careerlog_pass
-          POSTGRES_USER: careerlog_user
-          POSTGRES_DB: careerlog_test
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
 
-    - name: Cache Maven packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
+      - name: Build backend
+        working-directory: backend
+        run: ./mvnw -B clean package -DskipTests
 
-    - name: Run tests
-      run: |
-        cd backend
-        mvn clean test
-      env:
-        SPRING_PROFILES_ACTIVE: test
-        DB_HOST: localhost
-        DB_PORT: 5432
-        DB_NAME: careerlog_test
-        DB_USERNAME: careerlog_user
-        DB_PASSWORD: careerlog_pass
-
-    - name: Generate test report
-      uses: dorny/test-reporter@v1
-      if: success() || failure()
-      with:
-        name: Maven Tests
-        path: backend/target/surefire-reports/*.xml
-        reporter: java-junit
-
-  build:
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-
-    - name: Cache Maven packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
-
-    - name: Build JAR
-      run: |
-        cd backend
-        mvn clean package -DskipTests
-      env:
-        SPRING_PROFILES_ACTIVE: azure
-
-    - name: Upload JAR artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: backend-jar
-        path: backend/target/*.jar
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    environment: production
-
-    steps:
-    - name: Download JAR artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: backend-jar
-
-    - name: Deploy to Azure App Service
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: careerlog-backend-app
-        slot-name: production
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: '*.jar'
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: careerlog-backend-clint
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: backend/target/*.jar
