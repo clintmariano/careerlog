@@ -24,8 +24,8 @@ spring:
   datasource:
     # for local dev you can change this to localhost later if you want
     url: jdbc:postgresql://careerlog-db.postgres.database.azure.com:5432/careerlog?sslmode=require
-    username: ${DB_USERNAME:careerlogadmin@careerlog-db}
-    password: ${DB_PASSWORD:changeme}   # DO NOT commit real password here
+    username: ${DB_USERNAME:careerlogadmin}
+    password: ${DB_PASSWORD:change-me}   # DO NOT commit real password here
     driver-class-name: org.postgresql.Driver
 
 management:
@@ -68,6 +68,7 @@ spring:
       account-name: ${AZURE_STORAGE_ACCOUNT_NAME}
       account-key: ${AZURE_STORAGE_ACCOUNT_KEY}
       blob-endpoint: https://${AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net
+      container-name: ${AZURE_STORAGE_CONTAINER_NAME}
     keyvault:
       uri: ${AZURE_KEYVAULT_URI}
 
