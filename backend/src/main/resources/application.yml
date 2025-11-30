@@ -70,7 +70,7 @@ spring:
       blob-endpoint: https://${AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net
       container-name: ${AZURE_STORAGE_CONTAINER_NAME}
     keyvault:
-      uri: ${AZURE_KEYVAULT_URI}
+      uri: ${AZURE_KEYVAULT_URI:}
 
 management:
   endpoints:
