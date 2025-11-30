@@ -11,15 +11,15 @@ export const msalConfig = {
   },
 }
 
-export const loginRequest = {
-  scopes: ['User.Read'],
+const apiScope = import.meta.env.VITE_API_SCOPE || 'api://your-api-client-id/access_as_user'
+
+export const loginRequest = { scopes: [apiScope, 'User.Read'] }
+
+export const apiConfig = {
+  uri: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
+  scopes: [apiScope],
 }
 
 export const graphConfig = {
   graphMeEndpoint: 'https://graph.microsoft.com/v1.0/me',
-}
-
-export const apiConfig = {
-  uri: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
-  scopes: ['api://' + (import.meta.env.VITE_AZURE_CLIENT_ID || 'your-client-id') + '/access_as_user'],
 }

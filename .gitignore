@@ -1,0 +1,9 @@
+.env
+*.env
+frontend/.env
+backend/.env
+node_modules/
+frontend/dist/
+backend/target/
+.DS_Store
+Thumbs.db
