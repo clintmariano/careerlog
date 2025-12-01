@@ -3,97 +3,104 @@ name: Frontend CI/CD
 on:
   push:
     branches: [ main, develop ]
-    paths: [ 'frontend/**' ]
+    paths:
+      - "frontend/**"
   pull_request:
     branches: [ main ]
-    paths: [ 'frontend/**' ]
+    paths:
+      - "frontend/**"
+
+permissions:
+  contents: read
+  id-token: write
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
-    - name: Install dependencies
-      run: |
-        cd frontend
-        npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Run tests
-      run: |
-        cd frontend
-        npm run test:ci || true
-      env:
-        CI: true
+      - name: Run tests
+        run: npm run test:ci || true
+        env:
+          CI: true
 
-    - name: Run ESLint
-      run: |
-        cd frontend
-        npm run lint
+      - name: Run ESLint
+        run: npm run lint
 
   build:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    defaults:
+      run:
+        working-directory: frontend
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
-    - name: Install dependencies
-      run: |
-        cd frontend
-        npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Build application
-      run: |
-        cd frontend
-        npm run build
-      env:
-        VITE_API_BASE_URL: ${{ secrets.API_BASE_URL }}
-        VITE_AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        VITE_AZURE_AUTHORITY: ${{ secrets.AZURE_AUTHORITY }}
-        VITE_AZURE_REDIRECT_URI: ${{ secrets.AZURE_REDIRECT_URI }}
+      - name: Build application
+        run: npm run build
+        env:
+          # Vite/MSAL config (all from GitHub repo secrets)
+          VITE_API_BASE_URL: ${{ secrets.API_BASE_URL }}                         # https://careerlog-backend-clint.azurewebsites.net/api
+          VITE_AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}                   # frontend SPA client id
+          VITE_AZURE_AUTHORITY: ${{ secrets.AZURE_AUTHORITY }}                   # https://login.microsoftonline.com/<tenant-id>
+          VITE_AZURE_REDIRECT_URI: ${{ secrets.AZURE_REDIRECT_URI }}             # https://careerlog-frontend-app.azurewebsites.net
+          VITE_API_SCOPE: ${{ secrets.API_SCOPE }}                               # api://330452df-580a-4f7c-aa27-f1b4ea73717f/access_as_user
+          VITE_AZURE_POST_LOGOUT_REDIRECT_URI: ${{ secrets.AZURE_POST_LOGOUT_REDIRECT_URI }} # same as redirect uri
 
-    - name: Upload build artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: frontend-dist
-        path: frontend/dist/
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    environment: production
+    environment:
+      name: production
+      url: https://careerlog-frontend-app.azurewebsites.net
 
     steps:
-    - name: Download build artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: frontend-dist
-        path: dist/
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist/
 
-    - name: Deploy to Azure App Service
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: careerlog-frontend-app
-        slot-name: production
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: dist/
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: careerlog-frontend-app
+          slot-name: production
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_FRONTEND }}
+          package: dist/
