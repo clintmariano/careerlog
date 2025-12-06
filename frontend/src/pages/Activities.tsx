@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react'
 import { Plus, Calendar, Clock, MapPin } from 'lucide-react'
 import { activityService } from '@/api/applicationService'
 import { Activity, ActivityType } from '@/types/application'
+import AddActivityModal from '@/components/AddActivityModal'
 
 const Activities = () => {
   const [activities, setActivities] = useState<Activity[]>([])
   const [loading, setLoading] = useState(true)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
   useEffect(() => {
     fetchActivities()
@@ -40,7 +42,10 @@ const Activities = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold text-gray-900">Activities</h1>
-        <button className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+        >
           <Plus className="h-4 w-4 mr-2" />
           Add Activity
         </button>
@@ -107,6 +112,12 @@ const Activities = () => {
           )}
         </div>
       </div>
+
+      <AddActivityModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSuccess={fetchActivities}
+      />
     </div>
   )
 }

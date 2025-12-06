@@ -25,7 +25,7 @@ spring:
     # for local dev you can change this to localhost later if you want
     url: jdbc:postgresql://careerlog-db.postgres.database.azure.com:5432/careerlog?sslmode=require
     username: ${DB_USERNAME:careerlogadmin}
-    password: ${DB_PASSWORD:change-me}   # DO NOT commit real password here
+    password: ${DB_PASSWORD:Fawkes122%}   # DO NOT commit real password here
     driver-class-name: org.postgresql.Driver
 
 management:

@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { applicationService } from '@/api/applicationService'
 import { Application, ApplicationStatus } from '@/types/application'
 import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react'
 import toast from 'react-hot-toast'
+import AddApplicationModal from '@/components/AddApplicationModal'
 
 const Applications = () => {
+  const navigate = useNavigate()
   const [applications, setApplications] = useState<Application[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const pageSize = 10
 
   useEffect(() => {
@@ -73,7 +77,10 @@ const Applications = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold text-gray-900">Job Applications</h1>
-        <button className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
           <Plus className="h-4 w-4 mr-2" />
           Add Application
         </button>
@@ -151,15 +158,24 @@ const Applications = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="text-blue-600 hover:text-blue-900">
+                        <button
+                          onClick={() => navigate(`/applications/${application.id}`)}
+                          className="text-blue-600 hover:text-blue-900"
+                          title="View"
+                        >
                           <Eye className="h-4 w-4" />
                         </button>
-                        <button className="text-indigo-600 hover:text-indigo-900">
+                        <button
+                          onClick={() => navigate(`/applications/${application.id}`)}
+                          className="text-indigo-600 hover:text-indigo-900"
+                          title="Edit"
+                        >
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => deleteApplication(application.id!)}
                           className="text-red-600 hover:text-red-900"
+                          title="Delete"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -172,6 +188,12 @@ const Applications = () => {
           )}
         </div>
       </div>
+
+      <AddApplicationModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSuccess={fetchApplications}
+      />
     </div>
   )
 }
