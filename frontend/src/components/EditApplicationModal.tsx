@@ -8,7 +8,7 @@ import toast from 'react-hot-toast'
 interface EditApplicationModalProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess: (updatedApplication: Application) => void
+  onSuccess: (_application: Application) => void
   application: Application
 }
 
