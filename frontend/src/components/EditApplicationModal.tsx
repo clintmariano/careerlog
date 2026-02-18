@@ -51,6 +51,8 @@ const EditApplicationModal = ({ isOpen, onClose, onSuccess, application }: EditA
   }, [isOpen, application, reset])
 
   const onSubmit = async (data: ApplicationFormData) => {
+    if (!application.id) return
+
     try {
       setIsSubmitting(true)
       const applicationData: Partial<Application> = {
