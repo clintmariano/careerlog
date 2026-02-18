@@ -20,9 +20,14 @@ module.exports = {
       'plugin:react-hooks/recommended',
     ],
     rules: {
-      // allow UPPER_SNAKE_CASE “constants” even if unused (e.g. for config)
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
-  
+      // Disable base rule as it doesn't understand TypeScript
+      'no-unused-vars': 'off',
+      // Use TypeScript-aware version instead
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^[A-Z_]'
+      }],
+
       // recommended rule from react-refresh plugin for Vite/React
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
