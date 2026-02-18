@@ -5,11 +5,13 @@ import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { applicationService } from '@/api/applicationService'
 import { Application } from '@/types/application'
+import EditApplicationModal from '@/components/EditApplicationModal'
 
 const ApplicationDetail = () => {
   const { id } = useParams<{ id: string }>()
   const [application, setApplication] = useState<Application | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   useEffect(() => {
     if (id) {
@@ -65,29 +67,32 @@ const ApplicationDetail = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Link
-            to="/applications"
-            className="inline-flex items-center text-gray-500 hover:text-gray-700"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Applications
-          </Link>
+      <div>
+        <Link
+          to="/applications"
+          className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-4"
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back to Applications
+        </Link>
+        <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold text-gray-900">Application Details</h1>
-        </div>
-        <div className="flex items-center space-x-2">
-          <button className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-            <Edit className="h-4 w-4 mr-2" />
-            Edit
-          </button>
-          <button
-            onClick={deleteApplication}
-            className="inline-flex items-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700"
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete
-          </button>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </button>
+            <button
+              onClick={deleteApplication}
+              className="inline-flex items-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </button>
+          </div>
         </div>
       </div>
 
@@ -156,6 +161,15 @@ const ApplicationDetail = () => {
         <h3 className="text-lg font-medium text-gray-900 mb-4">Attachments</h3>
         <p className="text-gray-500">Attachments will be displayed here</p>
       </div>
+
+      {application && (
+        <EditApplicationModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSuccess={(updatedApplication) => setApplication(updatedApplication)}
+          application={application}
+        />
+      )}
     </div>
   )
 }
