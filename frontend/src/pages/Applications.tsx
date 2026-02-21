@@ -113,25 +113,25 @@ const Applications = () => {
               <p className="text-sm text-gray-400 mt-2">Add your first job application to get started</p>
             </div>
           ) : (
-            <table className="min-w-full divide-y divide-gray-200">
+            <table className="w-full table-fixed divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="w-[20%] px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Company
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="w-[34%] px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Position
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="w-[18%] px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Location
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="w-[6%] px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Applied Date
+                  <th className="w-[12%] px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    &nbsp;&nbsp;&nbsp;&nbsp;Date
                   </th>
-                  <th className="relative px-6 py-3">
+                  <th className="w-[10%] pl-2 pr-4 py-3">
                     <span className="sr-only">Actions</span>
                   </th>
                 </tr>
@@ -139,25 +139,25 @@ const Applications = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {applications.map((application) => (
                   <tr key={application.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{application.companyName}</div>
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-medium text-gray-900 truncate" title={application.companyName}>{application.companyName}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{application.jobTitle}</div>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-900 truncate" title={application.jobTitle}>{application.jobTitle}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">{application.location || 'Remote'}</div>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-500 truncate" title={application.location || 'Remote'}>{application.location || 'Remote'}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap text-center">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(application.status)}`}>
                         {application.status.replace('_', ' ')}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
                       {new Date(application.applicationDate).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center space-x-2">
+                    <td className="pl-2 pr-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center justify-end space-x-2">
                         <button
                           onClick={() => navigate(`/applications/${application.id}`)}
                           className="text-blue-600 hover:text-blue-900"
