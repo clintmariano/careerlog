@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { applicationService } from '@/api/applicationService'
 import { Application, ApplicationStatus } from '@/types/application'
-import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Eye, ChevronLeft, ChevronRight } from 'lucide-react'
 import toast from 'react-hot-toast'
 import AddApplicationModal from '@/components/AddApplicationModal'
 
@@ -12,23 +12,32 @@ const Applications = () => {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [currentPage, setCurrentPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [totalElements, setTotalElements] = useState(0)
   const pageSize = 10
 
   useEffect(() => {
-    fetchApplications()
+    setCurrentPage(0)
   }, [searchTerm])
+
+  useEffect(() => {
+    fetchApplications()
+  }, [currentPage, searchTerm])
 
   const fetchApplications = async () => {
     try {
       setLoading(true)
       const response = await applicationService.getApplications(
-        0,
+        currentPage,
         pageSize,
         'applicationDate',
         'desc',
         searchTerm
       )
       setApplications(response.data.content || [])
+      setTotalPages(response.data.totalPages || 0)
+      setTotalElements(response.data.totalElements || 0)
     } catch (error) {
       toast.error('Failed to fetch applications')
       console.error('Error fetching applications:', error)
@@ -187,6 +196,36 @@ const Applications = () => {
             </table>
           )}
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+            <div className="text-sm text-gray-500">
+              Showing {currentPage * pageSize + 1} to {Math.min((currentPage + 1) * pageSize, totalElements)} of {totalElements} applications
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                disabled={currentPage === 0}
+                className="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Previous
+              </button>
+              <span className="text-sm text-gray-700">
+                Page {currentPage + 1} of {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+                disabled={currentPage >= totalPages - 1}
+                className="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <AddApplicationModal
