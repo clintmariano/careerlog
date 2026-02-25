@@ -23,7 +23,7 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
 
     public Page<Application> getApplicationsByUser(String userId, Pageable pageable) {
-        return applicationRepository.findByUserIdOrderByApplicationDateDesc(userId, pageable);
+        return applicationRepository.findByUserId(userId, pageable);
     }
 
     public Page<Application> searchApplications(String userId, String searchTerm, Pageable pageable) {

@@ -39,7 +39,8 @@ public class ApplicationController {
         log.info("Fetching applications for user: {} with search term: {}", userId, search);
 
         Sort.Direction direction = sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Sort sort = Sort.by(direction, sortBy).and(Sort.by(Sort.Direction.DESC, "id"));
+        Pageable pageable = PageRequest.of(page, size, sort);
 
         Page<Application> applications;
         if (search != null && !search.trim().isEmpty()) {
